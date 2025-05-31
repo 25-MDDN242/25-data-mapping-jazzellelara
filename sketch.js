@@ -1,11 +1,12 @@
 let sourceImg=null;
 let maskImg=null;
 let renderCounter=0;
+let curLayer = 0;
 
 // change these three lines as appropiate
-let sourceFile = "input_1.jpg";
-let maskFile   = "mask_1.png";
-let outputFile = "output_1.png";
+let sourceFile = "input_3.jpg";
+let maskFile   = "mask_3.png";
+let outputFile = "output_3.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -23,7 +24,6 @@ function setup () {
   sourceImg.loadPixels();
   maskImg.loadPixels();
   colorMode(HSB);
-
   maskCenterSearch(20);
 }
 
@@ -84,77 +84,107 @@ function maskCenterSearch(min_width) {
 
 function draw () {
   angleMode(DEGREES);
-  //---------------------------- Colour/Saturation Change ---------------------------
-  let num_lines_to_draw = 40;
-  // get one scanline
-  push()
-  for(let j=renderCounter; j<renderCounter+num_lines_to_draw && j<1080; j++) {
-    for(let i=0; i<1920; i++) {
-      colorMode(RGB);
-      let pix = sourceImg.get(i, j);
-      // create a color from the values (always RGB)
-      let col = color(pix);
-      let mask = maskImg.get(i, j);
+  if (curLayer == 0) {
+    //---------------------------- Colour/Saturation Change ---------------------------
+      let num_lines_to_draw = 40;
+      // get one scanline
+      for(let j=renderCounter; j<renderCounter+num_lines_to_draw && j<1080; j++) {
+          for(let i=0; i<1920; i++) {
+            colorMode(RGB);
+            let pix = sourceImg.get(i, j);
+            // create a color from the values (always RGB)
+            let col = color(pix);
+            let mask = maskImg.get(i, j);
 
-      colorMode(HSB, 360, 100, 100);
-      // draw a "dimmed" version in gray
-      let h = hue(col);
-      let s = saturation(col);
-      let b = brightness(col);
+            // warp effect
+            let warpOffset = 5;
+            let wave = sin(j*20);
+            let slip = map(wave, -1, 1, -warpOffset, warpOffset);
 
-      if(mask[0] > 128) {
-        // draw the full pixels
-        //let new_sat = map(s, 0, 100, 50, 100);
-        let new_brt = map(b, 0, 70, 50, 70);
-        let new_hue = map(h, 0, 238, 300, 264);
-        let new_col = color(new_hue, s, new_brt);
-        set(i, j, new_col);
-      }
-      else {
-        let new_brt = map(b, 0, 18, 18, 18);
-        let new_hue = map(h, 0, 200, 225, 250);
-        let new_col = color(new_hue, 90, new_brt);
-        // let new_col = color(h, s, b);
-        set(i, j, new_col);
-      }
-    }
+            colorMode(HSB, 360, 100, 100);
+            // draw a "dimmed" version in gray
+            let h = hue(col);
+            let s = saturation(col);
+            let b = brightness(col);
+
+            if(mask[0] > 128) {
+              // draw the full pixels
+              //let new_sat = map(s, 0, 100, 50, 100);
+              let new_brt = map(b, 0, 70, 50, 70);
+              let new_hue = map(h, 0, 238, 300, 264);
+              let new_col = color(new_hue, s, new_brt);
+              set(i+slip, j, new_col); 
+            }
+            else {
+              let new_brt = map(b, 0, 18, 18, 18);
+              let new_hue = map(h, 0, 200, 225, 250);
+              let new_col = color(new_hue, 90, new_brt);
+              // let new_col = color(h, s, b);
+              set(i+slip, j, new_col);
+            }
+          }
+        }
+        renderCounter = renderCounter + num_lines_to_draw;
+        updatePixels();
+    //---------------------------------------------------------------------------------
   }
-  pop()
-  //---------------------------------------------------------------------------------
-
-  //---------------------------- Updated Render Counter ----------------------------
-    renderCounter = renderCounter + num_lines_to_draw;
-    updatePixels();
-    // print(renderCounter);
-    if(renderCounter > 1080) {
-      console.log("Done!")
-      noLoop();
+  else if (curLayer == 1){
+    //--------------------------------- Pointillism -----------------------------------
+      for(let i=0;i<4000;i++) {
+        colorMode(RGB);
+        let x = floor(random(sourceImg.width));
+        let y = floor(random(sourceImg.height));
+        let pixData = sourceImg.get(x, y);
+        let maskData = maskImg.get(x, y);
+        fill(pixData);
+        if(maskData[0] > 128) {
+          let pointSize = 10;
+          ellipse(x, y, pointSize, pointSize);
+        }
+        else {
+          let pointSize = 20;
+          rect(x, y, pointSize, pointSize);    
+        }
       }
+      renderCounter = renderCounter + 1;
+    //---------------------------------------------------------------------------------
+  }
+  else {
+    //------------------------------- Blob Tracking ----------------------------------
+      colorMode(HSB);
+      if (maskCenter !== null) {
+        strokeWeight(5);
+        fill(100, 0, 100);
+        stroke(100, 0, 100);
+        ellipse(maskCenter[0], maskCenter[1], 100);
+        line(maskCenter[0]-200, maskCenter[1], maskCenter[0]+200, maskCenter[1]);
+        line(maskCenter[0], maskCenter[1]-200, maskCenter[0], maskCenter[1]+200);
+        noFill();
+        let mcw = maskCenterSize[0];
+        let mch = maskCenterSize[1];
+        rect(maskCenter[0]-mcw/2, maskCenter[1]-mch/2, mcw, mch);
+      }
+    //---------------------------------------------------------------------------------
+  }
 
-  //------------------------------- Blob Tracking ----------------------------------
-    if (maskCenter !== null) {
-      strokeWeight(5);
-      fill(100, 0, 100);
-      stroke(100, 0, 100);
-      ellipse(maskCenter[0], maskCenter[1], 100);
-      line(maskCenter[0]-200, maskCenter[1], maskCenter[0]+200, maskCenter[1]);
-      line(maskCenter[0], maskCenter[1]-200, maskCenter[0], maskCenter[1]+200);
-      noFill();
-      let mcw = maskCenterSize[0];
-      let mch = maskCenterSize[1];
-      rect(maskCenter[0]-mcw/2, maskCenter[1]-mch/2, mcw, mch);
-    }
-  //---------------------------------------------------------------------------------
-
-  //---------------------------- Original Render Counter ----------------------------
-  // renderCounter = renderCounter + 1;
-  // if(renderCounter > 10) {
-  //   console.log("Done!")
-  //   noLoop();
+  //-------------------------------- Render Counter ---------------------------------
+  // print(renderCounter);
+  if(curLayer == 0 && renderCounter > 1080) {
+    curLayer = 1;
+    renderCounter = 0;
+  }
+  else if(curLayer == 1 && renderCounter > 200) {
+    curLayer = 2;
+    renderCounter = 0;
+  }
+  else if(curLayer == 2 && renderCounter > 1) {
+    console.log("Done!")
+    noLoop();
+  }
 
   //------------------------------ Save Artwork Toggle ------------------------------
-    // uncomment this to save the result
-    // saveArtworkImage(outputFile);
+  // uncomment this to save the result
+  // saveArtworkImage(outputFile);
 
 } //======================================= FUNCTION DRAW END ============================================
 
@@ -202,21 +232,34 @@ function keyTyped() {
     // }
   //---------------------------------------------------------------------------------
 
-  //------------------------------ Pointillism Example ------------------------------
-    // for(let i=0;i<4000;i++) {
-    //   let x = floor(random(sourceImg.width));
-    //   let y = floor(random(sourceImg.height));
-    //   let pixData = sourceImg.get(x, y);
-    //   let maskData = maskImg.get(x, y);
-    //   fill(pixData);
-    //   if(maskData[0] > 128) {
-    //     let pointSize = 10;
-    //     ellipse(x, y, pointSize, pointSize);
+  //------------------------------ Dot and Line Example ------------------------------
+    // rectMode(CORNERS);
+    // for(let i=0; i<100; i++) {
+    //   let x1 = random(0, width);
+    //   let y1 = random(0, height);
+    //   let x2 = x1 + random(-10, 10);
+    //   let y2 = y1 + random(-10, 10);
+    //   colorMode(RGB);
+    //   let pix = sourceImg.get(x1, y1);
+    //   let mask = maskImg.get(x1, y1);
+    //   let col = color(pix);
+    //   stroke(col);
+    //   fill(col);
+    //   if(mask[1] < 128) {
+    //     line(x1, y1, x2, y2);
     //   }
     //   else {
-    //     let pointSize = 20;
-    //     rect(x, y, pointSize, pointSize);    
+    //     rect(x1, y1, x2, y2);
     //   }
     // }
-    //---------------------------------------------------------------------------------
+    // renderCounter = renderCounter + 1;
+    // // set(i, j, new_col);
+  //---------------------------------------------------------------------------------
+
+  //---------------------------- Original Render Counter ----------------------------
+    // renderCounter = renderCounter + 1;
+    // if(renderCounter > 10) {
+    //   console.log("Done!")
+    //   noLoop();
+  //---------------------------------------------------------------------------------
 

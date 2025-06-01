@@ -4,9 +4,9 @@ let renderCounter=0;
 let curLayer = 0;
 
 // change these three lines as appropiate
-let sourceFile = "input_3.jpg";
-let maskFile   = "mask_3.png";
-let outputFile = "output_3.png";
+let sourceFile = "input_2.jpg";
+let maskFile   = "mask_2.png";
+let outputFile = "output_2.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -27,11 +27,16 @@ function setup () {
   maskCenterSearch(20);
 }
 
-//------------------------------ Blob Tracking Setup ------------------------------
+//------------------------------- Canvas Size Setup -------------------------------
 let X_STOP = 1920;
 let Y_STOP = 1080;
-let OFFSET = 20;
+// let X_STOP = 640;
+// let Y_STOP = 480;
+// let X_STOP = 640;
+// let Y_STOP = 180;
+let OFFSET = 10;
 
+//------------------------------ Blob Tracking Setup ------------------------------
 function maskCenterSearch(min_width) {
   let max_up_down = 0;
   let max_left_right = 0;
@@ -93,22 +98,41 @@ function maskCenterSearch(min_width) {
 function draw () {
   angleMode(DEGREES);
   if (curLayer == 0) {
-    //---------------------------- Colour/Saturation Change ---------------------------
+    //-------------------- Colour/Saturation Change, Warp and Blur --------------------
       let num_lines_to_draw = 40;
       // get one scanline
-      for(let j=renderCounter; j<renderCounter+num_lines_to_draw && j<1080; j++) {
-          for(let i=0; i<1920; i++) {
+      for(let j=renderCounter; j<renderCounter+num_lines_to_draw && j<Y_STOP; j++) {
+          for(let i=0; i<X_STOP; i++) {
             colorMode(RGB);
             let pix = sourceImg.get(i, j);
-            // create a color from the values (always RGB)
-            let col = color(pix);
             let mask = maskImg.get(i, j);
 
-            // warp effect
+            //--------------------------------- Warp Effect -----------------------------------
             let warpOffset = 5;
             let wave = sin(j*10);
             let slip = map(wave, -1, 1, -warpOffset, warpOffset);
 
+            //--------------------------------- Blur Effect -----------------------------------
+            pix == [0, 0, 0, 255];
+            let sum_rgb = [0, 0, 0]
+            let num_cells = 0;
+            for(let wx=-OFFSET;wx<OFFSET;wx++){
+              for (let wy=-OFFSET;wy<OFFSET;wy++) {
+                let pix = sourceImg.get(i+wx, j+wy);
+                for(let c=0; c<3; c++) {
+                  sum_rgb[c] += pix[c];
+                }
+                num_cells += 1;
+              }
+            }
+            for(let c=0; c<3; c++) {
+              pix[c] = int(sum_rgb[c] / num_cells);
+            }        
+            //------------------------------- End Blur Effect ---------------------------------
+
+            //--------------------------- Colour/Saturation Change ----------------------------
+            // create a color from the values (always RGB)
+            let col = color(pix);
             colorMode(HSB, 360, 100, 100);
             // draw a "dimmed" version in gray
             let h = hue(col);
@@ -118,9 +142,9 @@ function draw () {
             if(mask[0] > 128) {
               // draw the full pixels
               // NOTE: (large areas, inbetween areas, highlights)
-              let new_hue = map(h, 0, 260, 320, 230);              
-              let new_sat = map(h, 0, 30, 90, 60);
-              let new_brt = map(b, 0, 50, 90, 40);
+              let new_hue = map(h, 0, 220, 320, 220);              
+              let new_sat = map(s, 0, 80, 60, 60);
+              let new_brt = map(b, 0, 50, 100, 50);
               let new_col = color(new_hue, new_sat, new_brt);
               set(i+slip, j, new_col); 
             }
@@ -129,8 +153,8 @@ function draw () {
               let new_brt = map(b, 0, 18, 18, 18);
               let new_col = color(new_hue, 90, new_brt);
               // let new_col = color(h, s, b);
-              set(i, j, new_col);
-            }
+              set(i+slip, j, new_col);
+            }      
           }
         }
         renderCounter = renderCounter + num_lines_to_draw;
@@ -181,7 +205,7 @@ function draw () {
 
   //-------------------------------- Render Counter ---------------------------------
   // print(renderCounter);
-  if(curLayer == 0 && renderCounter > 1080) {
+  if(curLayer == 0 && renderCounter > Y_STOP) {
     curLayer = 1;
     renderCounter = 0;
   }

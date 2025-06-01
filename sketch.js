@@ -82,6 +82,14 @@ function maskCenterSearch(min_width) {
 }
 //---------------------------------------------------------------------------------
 
+//----------------------- Colour/Saturation Change Functions ----------------------
+// function mask1NewColor (h, s, b) {
+//   let new_brt = map(b, 0, 70, 50, 70);
+//   let new_hue = map(h, 0, 238, 300, 264);
+//   let new_col = color(new_hue, s, new_brt);
+//   return new_col
+// }
+
 function draw () {
   angleMode(DEGREES);
   if (curLayer == 0) {
@@ -98,7 +106,7 @@ function draw () {
 
             // warp effect
             let warpOffset = 5;
-            let wave = sin(j*20);
+            let wave = sin(j*10);
             let slip = map(wave, -1, 1, -warpOffset, warpOffset);
 
             colorMode(HSB, 360, 100, 100);
@@ -109,18 +117,19 @@ function draw () {
 
             if(mask[0] > 128) {
               // draw the full pixels
-              //let new_sat = map(s, 0, 100, 50, 100);
-              let new_brt = map(b, 0, 70, 50, 70);
-              let new_hue = map(h, 0, 238, 300, 264);
-              let new_col = color(new_hue, s, new_brt);
+              // NOTE: (large areas, inbetween areas, highlights)
+              let new_hue = map(h, 0, 260, 320, 230);              
+              let new_sat = map(h, 0, 30, 40, 60);
+              let new_brt = map(b, 0, 50, 90, 40);
+              let new_col = color(new_hue, new_sat, new_brt);
               set(i+slip, j, new_col); 
             }
             else {
-              let new_brt = map(b, 0, 18, 18, 18);
               let new_hue = map(h, 0, 200, 225, 250);
+              let new_brt = map(b, 0, 18, 18, 18);
               let new_col = color(new_hue, 90, new_brt);
               // let new_col = color(h, s, b);
-              set(i+slip, j, new_col);
+              set(i, j, new_col);
             }
           }
         }
@@ -136,14 +145,17 @@ function draw () {
         let y = floor(random(sourceImg.height));
         let pixData = sourceImg.get(x, y);
         let maskData = maskImg.get(x, y);
-        fill(pixData);
+        //add random variable to control star color, manually control star color with random (not based on pixels)
+        // add blur to base layer 
+        // commit before anything
+        fill(yellow);
         if(maskData[0] > 128) {
-          let pointSize = 10;
+          let pointSize = 5;
           ellipse(x, y, pointSize, pointSize);
         }
         else {
-          let pointSize = 20;
-          rect(x, y, pointSize, pointSize);    
+          let pointSize = 5;
+          ellipse(x, y, pointSize, pointSize);    
         }
       }
       renderCounter = renderCounter + 1;
@@ -173,7 +185,7 @@ function draw () {
     curLayer = 1;
     renderCounter = 0;
   }
-  else if(curLayer == 1 && renderCounter > 200) {
+  else if(curLayer == 1 && renderCounter > 1) {
     curLayer = 2;
     renderCounter = 0;
   }

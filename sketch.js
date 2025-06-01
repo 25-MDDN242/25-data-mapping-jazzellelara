@@ -119,7 +119,7 @@ function draw () {
               // draw the full pixels
               // NOTE: (large areas, inbetween areas, highlights)
               let new_hue = map(h, 0, 260, 320, 230);              
-              let new_sat = map(h, 0, 30, 40, 60);
+              let new_sat = map(h, 0, 30, 90, 60);
               let new_brt = map(b, 0, 50, 90, 40);
               let new_col = color(new_hue, new_sat, new_brt);
               set(i+slip, j, new_col); 

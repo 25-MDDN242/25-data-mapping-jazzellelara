@@ -2,4 +2,25 @@
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19462486&assignment_repo_type=AssignmentRepo)
 ## Creative Coding + AI II: Custom Pixel
 
-The images above are photos of Wellington CBD algorithmically processed with a lightly modified version of the [p5.js Pointillism example](https://p5js.org/examples/image-pointillism.html). The masks for each photo highlight various objects. Replace this text with your own which explains the source of your photos, masking, and applied algorithm.
+### MDDN 242 Project 3: Data Mapping
+### Jazzelle Richdale
+# Clouds to Outer Space
+
+### Design Intentions
+Body text
+
+### Inspiration
+Body text
+
+### Design Process
+
+#### *Section*
+Body text
+
+#### *Conclusion*
+Body text
+
+
+![Galaxy](https://github.com/25-MDDN242/25-data-mapping-jazzellelara/blob/main/galaxy.jpg "galaxy")
+
+![Signal](https://github.com/25-MDDN242/25-data-mapping-jazzellelara/blob/main/signal.jpg "signal")

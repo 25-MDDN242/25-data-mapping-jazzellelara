@@ -4,9 +4,9 @@ let renderCounter=0;
 let curLayer = 0;
 
 // change these three lines as appropiate
-let sourceFile = "input_6.jpg";
-let maskFile   = "mask_6.png";
-let outputFile = "output_6.png";
+let sourceFile = "input_1.jpg";
+let maskFile   = "mask_1.png";
+let outputFile = "output_2.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -123,24 +123,6 @@ function draw () {
             let warpOffset = 5;
             let wave = sin(j*10);
             let slip = map(wave, -1, 1, -warpOffset, warpOffset);
-
-            // //--------------------------------- Blur Effect -----------------------------------
-            // pix == [0, 0, 0, 255];
-            // let sum_rgb = [0, 0, 0]
-            // let num_cells = 0;
-            // for(let wx=-OFFSET;wx<OFFSET;wx++){
-            //   for (let wy=-OFFSET;wy<OFFSET;wy++) {
-            //     let pix = sourceImg.get(i+wx, j+wy);
-            //     for(let c=0; c<3; c++) {
-            //       sum_rgb[c] += pix[c];
-            //     }
-            //     num_cells += 1;
-            //   }
-            // }
-            // for(let c=0; c<3; c++) {
-            //   pix[c] = int(sum_rgb[c] / num_cells);
-            // }        
-            // //------------------------------- End Blur Effect ---------------------------------
 
             //--------------------------- Colour/Saturation Change ----------------------------
             // create a color from the values (always RGB)
@@ -305,83 +287,12 @@ function draw () {
     noLoop();
   //------------------------------ Save Artwork Toggle ------------------------------
     // uncomment this to save the result
-    saveArtworkImage(outputFile);
+    // saveArtworkImage(outputFile);
   }
-
-} //======================================= FUNCTION DRAW END ============================================
+}
 
 function keyTyped() {
   if (key == '!') {
     saveBlocksImages();
   }
 }
-
-//=============================================== EXAMPLES ===============================================
-
-  //------------------------ Colour/Saturation Change EXAMPLE -----------------------
-    // let num_lines_to_draw = 40;
-    // // get one scanline
-    // for(let j=renderCounter; j<renderCounter+num_lines_to_draw && j<1080; j++) {
-    //   for(let i=0; i<1920; i++) {
-    //     colorMode(RGB);
-    //     let pix = sourceImg.get(i, j);
-    //     // create a color from the values (always RGB)
-    //     let col = color(pix);
-    //     let mask = maskImg.get(i, j);
-
-    //     colorMode(HSB, 360, 100, 100);
-    //     // draw a "dimmed" version in gray
-    //     let h = hue(col);
-    //     let s = saturation(col);
-    //     let b = brightness(col);
-
-    //     if(mask[0] > 128) {
-    //       // draw the full pixels
-    //       // let new_sat = map(s, 0, 100, 50, 100);
-    //       let new_brt = map(b, 0, 100, 50, 100);
-    //       // let new_hue = map(h, 0, 360, 180, 540);
-    //       let new_col = color(0, s, new_brt);
-    //       set(i, j, new_col);
-    //     }
-    //     else {
-    //       // let new_brt = map(b, 0, 100, 20, 40);
-    //       let new_brt = map(b, 0, 100, 100, 0);
-    //       let new_col = color(h, 0, new_brt);
-    //       // let new_col = color(h, s, b);
-    //       set(i, j, new_col);
-    //     }
-    //   }
-    // }
-  //---------------------------------------------------------------------------------
-
-  //------------------------------ Dot and Line Example ------------------------------
-    // rectMode(CORNERS);
-    // for(let i=0; i<100; i++) {
-    //   let x1 = random(0, width);
-    //   let y1 = random(0, height);
-    //   let x2 = x1 + random(-10, 10);
-    //   let y2 = y1 + random(-10, 10);
-    //   colorMode(RGB);
-    //   let pix = sourceImg.get(x1, y1);
-    //   let mask = maskImg.get(x1, y1);
-    //   let col = color(pix);
-    //   stroke(col);
-    //   fill(col);
-    //   if(mask[1] < 128) {
-    //     line(x1, y1, x2, y2);
-    //   }
-    //   else {
-    //     rect(x1, y1, x2, y2);
-    //   }
-    // }
-    // renderCounter = renderCounter + 1;
-    // // set(i, j, new_col);
-  //---------------------------------------------------------------------------------
-
-  //---------------------------- Original Render Counter ----------------------------
-    // renderCounter = renderCounter + 1;
-    // if(renderCounter > 10) {
-    //   console.log("Done!")
-    //   noLoop();
-  //---------------------------------------------------------------------------------
-

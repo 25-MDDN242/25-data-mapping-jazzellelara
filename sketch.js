@@ -302,11 +302,10 @@ function draw () {
   else if(curLayer == 4 && renderCounter > 1) {
     console.log("Done!")
     noLoop();
-  }
-
   //------------------------------ Save Artwork Toggle ------------------------------
-  // uncomment this to save the result
-  saveArtworkImage(outputFile);
+    // uncomment this to save the result
+    saveArtworkImage(outputFile);
+  }
 
 } //======================================= FUNCTION DRAW END ============================================
 

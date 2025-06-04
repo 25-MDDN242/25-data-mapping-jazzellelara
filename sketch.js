@@ -4,9 +4,9 @@ let renderCounter=0;
 let curLayer = 0;
 
 // change these three lines as appropiate
-let sourceFile = "input_1.jpg";
-let maskFile   = "mask_1.png";
-let outputFile = "output_1.png";
+let sourceFile = "input_6.jpg";
+let maskFile   = "mask_6.png";
+let outputFile = "output_6.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -38,13 +38,14 @@ function maskCenterSearch(min_width) {
   let max_left_right = 0;
   let max_x_index = 0;
   let max_y_index = 0;
+  let track_X_STOP = 1820;
 
   // first scan all rows top to bottom
   print("Scanning mask top to bottom...")
   for(let j=0; j<Y_STOP; j++) {
     // look across this row left to right and count
     let mask_count = 0;
-    for(let i=0; i<X_STOP; i++) {
+    for(let i=0; i<track_X_STOP; i++) {
       let mask = maskImg.get(i, j);
       if (mask[1] > 128) {
         mask_count = mask_count + 1;
@@ -59,7 +60,7 @@ function maskCenterSearch(min_width) {
 
   // now scan once left to right as well
   print("Scanning mask left to right...")
-  for(let i=0; i<X_STOP; i++) {
+  for(let i=0; i<track_X_STOP; i++) {
     // look across this column up to down and count
     let mask_count = 0;
     for(let j=0; j<Y_STOP; j++) {

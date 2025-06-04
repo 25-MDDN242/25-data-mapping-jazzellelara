@@ -4,9 +4,9 @@ let renderCounter=0;
 let curLayer = 0;
 
 // change these three lines as appropiate
-let sourceFile = "input_2.jpg";
-let maskFile   = "mask_2.png";
-let outputFile = "output_2.png";
+let sourceFile = "input_1.jpg";
+let maskFile   = "mask_1.png";
+let outputFile = "output_1.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -30,10 +30,6 @@ function setup () {
 //------------------------------- Canvas Size Setup -------------------------------
 let X_STOP = 1920;
 let Y_STOP = 1080;
-// let X_STOP = 640;
-// let Y_STOP = 480;
-// let X_STOP = 640;
-// let Y_STOP = 180;
 let OFFSET = 10;
 
 //------------------------------ Blob Tracking Setup ------------------------------
@@ -87,13 +83,28 @@ function maskCenterSearch(min_width) {
 }
 //---------------------------------------------------------------------------------
 
-//----------------------- Colour/Saturation Change Functions ----------------------
-// function mask1NewColor (h, s, b) {
-//   let new_brt = map(b, 0, 70, 50, 70);
-//   let new_hue = map(h, 0, 238, 300, 264);
-//   let new_col = color(new_hue, s, new_brt);
-//   return new_col
-// }
+//--------------------------------- Star Shape Setup ------------------------------
+function radialGradient(sX, sY, sRad, eRad, colS, colE, RCX, RCY){ //RC: Relative Coordinates, radial gradient's center relative to the circle's center
+  let gradient = drawingContext.createRadialGradient(sX+RCX, sY+RCY, sRad, sX+RCX, sY+RCY, eRad);
+  gradient.addColorStop(0, colS)
+  gradient.addColorStop(1, colE)
+
+  drawingContext.fillStyle = gradient; 
+}
+
+function starShape (x, y, size, hue, saturation, brightness) {
+  let colour = color(hue, saturation, brightness);
+  let transparent = color(hue, saturation, brightness, 0);
+  radialGradient(x, y,  0, size/4, colour, transparent, 0, 0);
+  ellipse(x, y,  size, size);
+}
+function starShapeTop (x, y, size, hue, white, light) {
+  let colourLight = color(hue, white, light, 0.5);
+  let transparentLight = color(hue, white, light, 0);
+  radialGradient(x, y,  0, size/8, colourLight, transparentLight, 0, 0);
+  ellipse(x, y,  size, size);
+}
+//---------------------------------------------------------------------------------
 
 function draw () {
   angleMode(DEGREES);
@@ -112,36 +123,34 @@ function draw () {
             let wave = sin(j*10);
             let slip = map(wave, -1, 1, -warpOffset, warpOffset);
 
-            //--------------------------------- Blur Effect -----------------------------------
-            pix == [0, 0, 0, 255];
-            let sum_rgb = [0, 0, 0]
-            let num_cells = 0;
-            for(let wx=-OFFSET;wx<OFFSET;wx++){
-              for (let wy=-OFFSET;wy<OFFSET;wy++) {
-                let pix = sourceImg.get(i+wx, j+wy);
-                for(let c=0; c<3; c++) {
-                  sum_rgb[c] += pix[c];
-                }
-                num_cells += 1;
-              }
-            }
-            for(let c=0; c<3; c++) {
-              pix[c] = int(sum_rgb[c] / num_cells);
-            }        
-            //------------------------------- End Blur Effect ---------------------------------
+            // //--------------------------------- Blur Effect -----------------------------------
+            // pix == [0, 0, 0, 255];
+            // let sum_rgb = [0, 0, 0]
+            // let num_cells = 0;
+            // for(let wx=-OFFSET;wx<OFFSET;wx++){
+            //   for (let wy=-OFFSET;wy<OFFSET;wy++) {
+            //     let pix = sourceImg.get(i+wx, j+wy);
+            //     for(let c=0; c<3; c++) {
+            //       sum_rgb[c] += pix[c];
+            //     }
+            //     num_cells += 1;
+            //   }
+            // }
+            // for(let c=0; c<3; c++) {
+            //   pix[c] = int(sum_rgb[c] / num_cells);
+            // }        
+            // //------------------------------- End Blur Effect ---------------------------------
 
             //--------------------------- Colour/Saturation Change ----------------------------
             // create a color from the values (always RGB)
             let col = color(pix);
             colorMode(HSB, 360, 100, 100);
-            // draw a "dimmed" version in gray
             let h = hue(col);
             let s = saturation(col);
             let b = brightness(col);
 
             if(mask[0] > 128) {
               // draw the full pixels
-              // NOTE: (large areas, inbetween areas, highlights)
               let new_hue = map(h, 0, 220, 320, 220);              
               let new_sat = map(s, 0, 80, 60, 60);
               let new_brt = map(b, 0, 50, 100, 50);
@@ -152,7 +161,6 @@ function draw () {
               let new_hue = map(h, 0, 200, 225, 250);
               let new_brt = map(b, 0, 18, 18, 18);
               let new_col = color(new_hue, 90, new_brt);
-              // let new_col = color(h, s, b);
               set(i+slip, j, new_col);
             }      
           }
@@ -162,44 +170,110 @@ function draw () {
     //---------------------------------------------------------------------------------
   }
   else if (curLayer == 1){
-    //--------------------------------- Pointillism -----------------------------------
-      for(let i=0;i<4000;i++) {
+    //--------------------------------- Small Stars -----------------------------------
+    for(let i=0;i<2000;i++) {
+      colorMode(RGB);
+      let x = floor(random(sourceImg.width));
+      let y = floor(random(sourceImg.height));
+      let pixData = sourceImg.get(x, y);
+      let maskData = maskImg.get(x, y);
+      let pointSize = 3;
+      if(maskData[0] < 128) {
+        fill(86, 113, 176);
+        ellipse(x, y, pointSize, pointSize);    
+      }
+      fill(184, 197, 230);
+      ellipse(x, y, pointSize, pointSize);    
+    }  
+    for(let i=0;i<4000;i++) {
         colorMode(RGB);
         let x = floor(random(sourceImg.width));
         let y = floor(random(sourceImg.height));
         let pixData = sourceImg.get(x, y);
         let maskData = maskImg.get(x, y);
-        //add random variable to control star color, manually control star color with random (not based on pixels)
-        // add blur to base layer 
-        // commit before anything
-        fill(yellow);
-        if(maskData[0] > 128) {
-          let pointSize = 5;
-          ellipse(x, y, pointSize, pointSize);
-        }
-        else {
-          let pointSize = 5;
-          ellipse(x, y, pointSize, pointSize);    
-        }
+        let pointSize = 3;
+        fill(pixData);
+        ellipse(x, y, pointSize, pointSize);
       }
       renderCounter = renderCounter + 1;
     //---------------------------------------------------------------------------------
   }
+  else if (curLayer == 2){
+    //--------------------------------- Medium Stars ----------------------------------
+    for(let i=0;i<800;i++) {
+        colorMode(HSB);
+        let x = floor(random(sourceImg.width));
+        let y = floor(random(sourceImg.height));
+        let maskData = maskImg.get(x, y);
+        let pointSize = random(10, 60)
+        let shapeHue = random(210, 320);
+        let maskHue = random(210, 240);
+        let saturation = 60
+        let brightness = random(30, 90)
+        let light = 95;
+        let white = 0;
+        
+        if(maskData[0] > 128) {
+          starShape (x, y, pointSize, shapeHue, saturation, brightness)
+          starShapeTop (x, y, pointSize, shapeHue, white, light)
+        }
+        else {
+          starShape (x, y, pointSize, maskHue, saturation, brightness)
+          starShapeTop (x, y, pointSize, maskHue, white, light)
+        }
+      }
+      renderCounter = renderCounter + 1;
+    //---------------------------------------------------------------------------------
+    }
+  else if (curLayer == 3){
+    //--------------------------------- Large Stars -----------------------------------
+    for(let i=0;i<5;i++) {
+        colorMode(HSB);
+        let x = floor(random(sourceImg.width));
+        let y = floor(random(sourceImg.height));
+        let maskData = maskImg.get(x, y);
+        let pointSize = random(100, 500)
+        let shapeHue = random(210, 320);
+        let maskHue = random(210, 240);
+        let saturation = 60
+        let brightness = random(70, 90)
+        let light = 100;
+        let white = 0;
+        
+        if(maskData[0] > 128) {
+          starShape (x, y, pointSize, shapeHue, saturation, brightness)
+          starShapeTop (x, y, pointSize, shapeHue, white, light)
+        }
+        else {
+          starShape (x, y, pointSize, maskHue, saturation, brightness)
+          starShapeTop (x, y, pointSize, maskHue, white, light)
+        }
+      }
+      renderCounter = renderCounter + 1;
+    //---------------------------------------------------------------------------------
+    }
   else {
     //------------------------------- Blob Tracking ----------------------------------
       colorMode(HSB);
       if (maskCenter !== null) {
-        strokeWeight(5);
-        fill(100, 0, 100);
+        noStroke();
+        starShape (maskCenter[0], maskCenter[1], 50, 340, 100, 90)
+        starShapeTop (maskCenter[0], maskCenter[1], 50, 340, 0, 95)
+        fill(100, 0, 100, 0);
         stroke(100, 0, 100);
-        ellipse(maskCenter[0], maskCenter[1], 100);
-        line(maskCenter[0]-200, maskCenter[1], maskCenter[0]+200, maskCenter[1]);
-        line(maskCenter[0], maskCenter[1]-200, maskCenter[0], maskCenter[1]+200);
-        noFill();
-        let mcw = maskCenterSize[0];
-        let mch = maskCenterSize[1];
-        rect(maskCenter[0]-mcw/2, maskCenter[1]-mch/2, mcw, mch);
+        strokeWeight(3);
+        rect(maskCenter[0]-40, maskCenter[1]-40, 80);
+        line(maskCenter[0]-40, maskCenter[1], maskCenter[0]-20, maskCenter[1]);
+        line(maskCenter[0]+40, maskCenter[1], maskCenter[0]+20, maskCenter[1]);
+        line(maskCenter[0], maskCenter[1]-40, maskCenter[0], maskCenter[1]-20);
+        line(maskCenter[0], maskCenter[1]+40, maskCenter[0], maskCenter[1]+20);
+        textSize(20);
+        strokeWeight(0);
+        stroke(60, 70, 100);
+        fill(60, 70, 100);
+        text('unknown signal detected', maskCenter[0]-105, maskCenter[1]+70)
       }
+      renderCounter = renderCounter + 1;
     //---------------------------------------------------------------------------------
   }
 
@@ -208,19 +282,31 @@ function draw () {
   if(curLayer == 0 && renderCounter > Y_STOP) {
     curLayer = 1;
     renderCounter = 0;
+    console.log("Layer 1 done!")
   }
   else if(curLayer == 1 && renderCounter > 1) {
     curLayer = 2;
     renderCounter = 0;
+    console.log("Layer 2 done!")
   }
   else if(curLayer == 2 && renderCounter > 1) {
+    curLayer = 3;
+    renderCounter = 0;
+    console.log("Layer 3 done!")
+  }
+  else if(curLayer == 3 && renderCounter > 1) {
+    curLayer = 4;
+    renderCounter = 0;
+    console.log("Layer 4 done!")
+  }
+  else if(curLayer == 4 && renderCounter > 1) {
     console.log("Done!")
     noLoop();
   }
 
   //------------------------------ Save Artwork Toggle ------------------------------
   // uncomment this to save the result
-  // saveArtworkImage(outputFile);
+  saveArtworkImage(outputFile);
 
 } //======================================= FUNCTION DRAW END ============================================
 
